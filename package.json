@@ -1,0 +1,29 @@
+{
+  "name": "umc_mission",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "umc 프로젝트",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "nodemon --exec node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gpdnjs8/umc_mission.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gpdnjs8/umc_mission/issues"
+  },
+  "homepage": "https://github.com/gpdnjs8/umc_mission#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

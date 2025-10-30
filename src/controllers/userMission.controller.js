@@ -7,6 +7,6 @@ export const handleAddUserMission = async (req, res) => {
     const userMission = await addUserMission(dto);
     res.status(201).json({ message: "미션 도전 추가 성공", userMission });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(400).json({ message: err.message });
   }
 };

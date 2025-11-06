@@ -28,3 +28,27 @@ export const insertReview = async (data) => {
   return { message: "리뷰 추가 성공" };
 };
 
+export const getAllUserReviews = async (userId, cursor=0) => {
+  const reviews = await prisma.userStoreReview.findMany({
+    select: {
+      id: true,
+      content: true,
+      star: true,
+      imageUrl: true,
+      createdAt: true,
+      storeId: true,
+      store: {
+        select: {
+          id: true,
+          name: true,
+          thumbnail: true,
+        },
+      },
+    },
+    where: { userId: userId, id: { gt: cursor } },
+    orderBy: { id: "asc" },
+    take: 5,
+  });
+
+  return reviews;
+};

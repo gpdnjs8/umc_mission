@@ -1,30 +1,35 @@
-import { pool } from "../db.config.js";
+import { prisma } from "../db.config.js";
 
 export const insertMission = async (data) => {
-  const conn = await pool.getConnection();
-  try {
-    const [rows] = await conn.query(`SELECT MAX(id) as maxId FROM mission`);
-    const newId = (rows[0].maxId || 0) + 1;
-
-    await conn.query(
-      `INSERT INTO mission 
-      (id, store_id, status, content, deadline, point, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [newId, data.storeId, data.status || "pending", data.content, data.deadline, data.point || 0]
-    );
-
-    return { id: newId, storeId: data.storeId };
-  } finally {
-    conn.release();
+  const store = await prisma.store.findUnique({
+    where: { id: Number(data.storeId) },
+  });
+  if (!store) {
+    throw new Error("해당 가게가 존재하지 않습니다.");
   }
+
+  const mission = await prisma.mission.create({
+    data: {
+      store: { connect: { id: data.storeId } },
+      status: data.status || "pending",
+      content: data.content,
+      deadline: new Date(data.deadline),
+      point: data.point || 0,
+    },
+  });
+
+  return {
+    id: mission.id,
+    storeId: data.storeId,
+    message: "미션 추가 성공",
+  };
 };
 
 export const getMissionById = async (id) => {
-  const conn = await pool.getConnection();
-  try {
-    const [rows] = await conn.query(`SELECT * FROM mission WHERE id = ?`, [id]);
-    return rows[0] || null;
-  } finally {
-    conn.release();
-  }
+  const mission = await prisma.mission.findUnique({
+    where: { id: Number(id) },
+    include: { store: true },
+  });
+
+  return mission || null;
 };

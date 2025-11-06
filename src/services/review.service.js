@@ -1,4 +1,4 @@
-import { getStoreById, insertReview, getMaxReviewId } from "../repositories/review.repository.js";
+import { getStoreById, insertReview } from "../repositories/review.repository.js";
 
 export const addReview = async (data) => {
   const store = await getStoreById(data.storeId);
@@ -6,8 +6,13 @@ export const addReview = async (data) => {
     throw new Error("해당 가게가 존재하지 않습니다.");
   }
 
-  const maxId = await getMaxReviewId();
-  const newId = maxId + 1;
+  const result = await insertReview({
+    userId: data.userId,
+    storeId: data.storeId,
+    content: data.content,
+    star: data.star,
+    imageUrl: data.imageUrl,
+  });
 
-  return insertReview({ ...data, id: newId });
+  return result;
 };

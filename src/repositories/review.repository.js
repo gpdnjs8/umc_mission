@@ -1,45 +1,30 @@
-import { pool } from "../db.config.js";
+import { prisma } from "../db.config.js";
 
 export const getStoreById = async (storeId) => {
-  const conn = await pool.getConnection();
-  try {
-    const [rows] = await conn.query(
-      `SELECT * FROM store WHERE id = ?`,
-      [storeId]
-    );
-    return rows[0] || null;
-  } finally {
-    conn.release();
-  }
+  const store = await prisma.store.findUnique({
+    where: { id: Number(storeId) },
+    include: {
+      region: true,
+      reviews: {
+        include: { user: true },
+      },
+    },
+  });
+
+  return store || null;
 };
 
 export const insertReview = async (data) => {
-  const conn = await pool.getConnection();
-  try {
-    await conn.query(
-      `INSERT INTO review (id, user_id, store_id, content, star, imageUrl, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, NOW())`,
-      [
-        data.id,
-        data.userId,
-        data.storeId,
-        data.content,
-        data.star,
-        data.imageUrl || null
-      ]
-    );
-    return { message: "리뷰 추가 성공" };
-  } finally {
-    conn.release();
-  }
+  await prisma.userStoreReview.create({
+    data: {
+      user: { connect: { id: data.userId } }, 
+      store: { connect: { id: data.storeId } }, 
+      content: data.content,
+      star: data.star,
+      imageUrl: data.imageUrl || null,
+    },
+  });
+
+  return { message: "리뷰 추가 성공" };
 };
 
-export const getMaxReviewId = async () => {
-  const conn = await pool.getConnection();
-  try {
-    const [rows] = await conn.query(`SELECT MAX(id) as maxId FROM review`);
-    return rows[0].maxId || 0;
-  } finally {
-    conn.release();
-  }
-};

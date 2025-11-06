@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon --exec node index.js"
+    "dev": "nodemon -e js,json,prisma --exec \"prisma generate && node index.js\""
   },
   "repository": {
     "type": "git",
@@ -20,11 +20,13 @@
   },
   "homepage": "https://github.com/gpdnjs8/umc_mission#readme",
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.0.0",
     "http-status-codes": "^2.3.0",
-    "mysql2": "^3.15.3"
+    "mysql2": "^3.15.3",
+    "prisma": "^6.19.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

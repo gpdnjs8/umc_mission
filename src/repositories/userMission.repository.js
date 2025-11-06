@@ -31,3 +31,17 @@ export const getUserMission = async (userId, missionId, status = null) => {
     where: whereClause,
   });
 };
+
+export const getUserMissionsInProgress = async (userId, cursor=0) => {
+  const missions = await prisma.userMission.findMany({
+    where: {
+      userId,
+      status: "in_progress",
+      id: { gt: cursor },
+    },
+    orderBy: { id: "asc" },
+    take: 5,
+  });
+
+  return missions;
+};

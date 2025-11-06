@@ -1,6 +1,6 @@
-import { insertMission, getMissionById } from "../repositories/mission.repository.js";
+import { insertMission, getMissionById, getAllStoreMissions } from "../repositories/mission.repository.js";
 import { getStoreById } from "../repositories/store.repository.js";
-import { CreateMissionDTO } from "../dtos/mission.dto.js";
+import { CreateMissionDTO, responseFromMissions } from "../dtos/mission.dto.js";
 
 export const addMission = async (data) => {
   const missionData = CreateMissionDTO(data);  
@@ -13,4 +13,9 @@ export const addMission = async (data) => {
   const result = await insertMission(missionData);
 
   return await getMissionById(result.id);
+};
+
+export const listStoreMissions = async (storeId, cursor=0) => {
+  const missions = await getAllStoreMissions(storeId, cursor);
+  return responseFromMissions(missions);
 };

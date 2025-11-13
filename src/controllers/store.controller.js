@@ -1,12 +1,12 @@
 import { addStore, listStoreReviews } from "../services/store.service.js";
 import { StatusCodes } from "http-status-codes";
 
-export const handleAddStore = async (req, res) => {
+export const handleAddStore = async (req, res, next) => {
   try {
     const store = await addStore(req.body);
-    res.status(201).json({ message: "가게 추가 성공", store });
+    res.status(StatusCodes.CREATED).success(store);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
@@ -15,9 +15,5 @@ export const handleListStoreReviews = async (req, res, next) => {
     parseInt(req.params.storeId),
     typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0
   );
-  res.status(StatusCodes.OK).json({
-    success: true,
-    message: "리뷰 목록 조회 성공",
-    data: reviews,
-  });
+  res.status(StatusCodes.OK).success(reviews);
 };

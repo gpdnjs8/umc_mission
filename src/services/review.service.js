@@ -1,10 +1,11 @@
 import { getStoreById, insertReview, getAllUserReviews } from "../repositories/review.repository.js";
 import { responseFromReviews } from "../dtos/review.dto.js";
+import { StoreError } from "../../errors.js";
 
 export const addReview = async (data) => {
   const store = await getStoreById(data.storeId);
   if (!store) {
-    throw new Error("해당 가게가 존재하지 않습니다.");
+    throw new StoreError("해당 가게가 존재하지 않습니다.", data);
   }
 
   const result = await insertReview({

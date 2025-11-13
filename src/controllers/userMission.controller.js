@@ -2,13 +2,13 @@ import { addUserMission, listUserMissionsInProgress } from "../services/userMiss
 import { createUserMissionDto } from "../dtos/userMission.dto.js";
 import { StatusCodes } from "http-status-codes";
 
-export const handleAddUserMission = async (req, res) => {
+export const handleAddUserMission = async (req, res, next) => {
   try {
     const dto = createUserMissionDto(req.body);
     const userMission = await addUserMission(dto);
-    res.status(201).json({ message: "미션 도전 추가 성공", userMission });
+    res.status(StatusCodes.CREATED).success(userMission);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
@@ -17,10 +17,5 @@ export const handleListUserMissionsInProgress = async (req, res) => {
     parseInt(req.params.userId),
     typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0
   );
-  res.status(StatusCodes.OK).json({
-    success: true,
-    message: "내가 진행 중인 미션 목록 조회 성공",
-    data: usermissions,
-  });
- 
+  res.status(StatusCodes.OK).success(usermissions);
 };

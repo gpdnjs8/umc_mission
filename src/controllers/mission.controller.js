@@ -36,7 +36,7 @@ export const handleAddMission = async (req, res, next) => {
                   storeId: { type: "number" },
                   status: { type: "string" },
                   content: { type: "string" },
-                  deadline:  { type: "string", format: "date-time" }
+                  deadline:  { type: "string", format: "date-time" },
                   point: { type: "number" },
                   createdAt:  { type: "string", format: "date-time" },
                   updatedAt:  { type: "string", format: "date-time" }
@@ -49,28 +49,6 @@ export const handleAddMission = async (req, res, next) => {
     };
     #swagger.responses[404] = {
       description: "가게에 미션 추가 실패 응답 (S001)",
-      content: {
-        "application/json": {
-          schema: {
-            type: "object",
-            properties: {
-              resultType: { type: "string", example: "FAIL" },
-              error: {
-                type: "object",
-                properties: {
-                  errorCode: { type: "string", example: "S001" },
-                  reason: { type: "string" },
-                  data: { type: "object" }
-                }
-              },
-              success: { type: "object", nullable: true, example: null }
-            }
-          }
-        }
-      }
-    };
-    #swagger.responses[409] = {
-      description: "가게에 미션 추가 실패 응답 (M002)",
       content: {
         "application/json": {
           schema: {

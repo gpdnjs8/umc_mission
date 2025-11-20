@@ -7,11 +7,11 @@ import { StoreError } from "../../errors.js";
 export const addMission = async (data) => {
   const missionData = CreateMissionDTO(data);  
  
-  const user = await getUserById(missionData.userId);
+  const user = await getUser(missionData.userId);
   if (!user) {
     throw new UserError("존재하지 않는 사용자입니다.", data);
   }
-  
+
   const store = await getStoreById(missionData.storeId);
   if (!store) {
     throw new StoreError("해당 가게가 존재하지 않습니다.", data);

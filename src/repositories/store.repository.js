@@ -61,3 +61,9 @@ export const getAllStoreReviews = async (storeId, cursor=0) => {
 
   return reviews;
 };
+
+export const getRegionById = async (id) => {
+  return await prisma.region.findUnique({
+    where: { id },
+  });
+};

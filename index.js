@@ -5,6 +5,9 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser"; 
 import swaggerAutogen from "swagger-autogen";
 import swaggerUiExpress from "swagger-ui-express";
+import passport from "passport";
+import { googleStrategy, jwtStrategy } from "./auth.config.js";
+import { prisma } from "./src/db.config.js";
 
 import { handleUserSignUp } from "./src/controllers/user.controller.js";
 import { handleAddStore, handleListStoreReviews } from "./src/controllers/store.controller.js";
@@ -13,6 +16,9 @@ import { handleAddMission, handleListStoreMissions } from "./src/controllers/mis
 import { handleAddUserMission, handleListUserMissionsInProgress } from "./src/controllers/userMission.controller.js";
 
 dotenv.config();
+
+passport.use(googleStrategy);
+passport.use(jwtStrategy);
 
 const app = express();
 const port = process.env.PORT;
@@ -36,6 +42,65 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(cors()); // cors 방식 허용
+app.use(morgan("dev")); 
+app.use(cookieParser());   
+app.use(express.static("public")); // 정적 파일 접근
+app.use(express.json()); // request의 본문을 json으로 해석할 수 있도록 함 (JSON 형태의 요청 body를 파싱하기 위함)
+app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
+app.use(passport.initialize());
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
+app.post("/api/v1/users/signup", handleUserSignUp);
+app.post("/api/v1/stores", handleAddStore);
+app.post("/api/v1/reviews", handleAddReview);
+app.post("/api/v1/missions", handleAddMission);
+app.post("/api/v1/users/missions", handleAddUserMission);
+
+app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews);
+app.get("/api/v1/users/:userId/reviews", handleListUserReviews);
+app.get("/api/v1/stores/:storeId/missions", handleListStoreMissions);
+app.get("/api/v1/users/:userId/missions/inprogress", handleListUserMissionsInProgress);
+
+const isLogin = passport.authenticate('jwt', { session: false });
+
+app.get('/mypage', isLogin, (req, res) => {
+  res.status(200).success({
+    message: `인증 성공! ${req.user.name}님의 마이페이지입니다.`,
+    user: req.user,
+  });
+});
+
+// 구글 로그인
+app.get("/oauth2/login/google", 
+  passport.authenticate("google", { 
+    session: false 
+  })
+);
+app.get(
+  "/oauth2/callback/google",
+  passport.authenticate("google", {
+	  session: false,
+    failureRedirect: "/login-failed",
+  }),
+  (req, res) => {
+    const tokens = req.user; 
+
+    res.status(200).json({
+      resultType: "SUCCESS",
+      error: null,
+      success: {
+          message: "Google 로그인 성공!",
+          tokens: tokens, // { "accessToken": "...", "refreshToken": "..." }
+      }
+    });
+  }
+);
+
+// swagger
 app.use(
   "/docs",
   swaggerUiExpress.serve,
@@ -66,28 +131,6 @@ app.get("/openapi.json", async (req, res, next) => {
   const result = await swaggerAutogen(options)(outputFile, routes, doc);
   res.json(result ? result.data : null);
 });
-
-app.use(cors()); // cors 방식 허용
-app.use(morgan("dev")); 
-app.use(cookieParser());   
-app.use(express.static("public")); // 정적 파일 접근
-app.use(express.json()); // request의 본문을 json으로 해석할 수 있도록 함 (JSON 형태의 요청 body를 파싱하기 위함)
-app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
-
-// app.get("/", (req, res) => {
-//   res.send("Hello World!");
-// });
-
-app.post("/api/v1/users/signup", handleUserSignUp);
-app.post("/api/v1/stores", handleAddStore);
-app.post("/api/v1/reviews", handleAddReview);
-app.post("/api/v1/missions", handleAddMission);
-app.post("/api/v1/users/missions", handleAddUserMission);
-
-app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews);
-app.get("/api/v1/users/:userId/reviews", handleListUserReviews);
-app.get("/api/v1/stores/:storeId/missions", handleListStoreMissions);
-app.get("/api/v1/users/:userId/missions/inprogress", handleListUserMissionsInProgress);
 
 /**
  * 전역 오류를 처리하기 위한 미들웨어

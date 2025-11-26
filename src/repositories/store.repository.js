@@ -1,4 +1,4 @@
-import { prisma } from "../db.config.js";
+import { prisma } from "../../db.config.js";
 
 export const getNextStoreId = async () => {
   const lastStore = await prisma.store.findFirst({

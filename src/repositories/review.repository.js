@@ -1,4 +1,4 @@
-import { prisma } from "../db.config.js";
+import { prisma } from "../../db.config.js";
 
 export const getStoreById = async (storeId) => {
   const store = await prisma.store.findUnique({

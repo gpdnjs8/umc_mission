@@ -4,6 +4,8 @@ import { StatusCodes } from "http-status-codes";
 export const handleAddMission = async (req, res, next) => {
    /*
     #swagger.summary = '가게에 미션 추가 API';
+    #swagger.tags = ['Mission']
+    #swagger.security = [{ "BearerAuth": [] }]  
     #swagger.requestBody = {
       required: true,
       content: {
@@ -82,6 +84,8 @@ export const handleAddMission = async (req, res, next) => {
 export const handleListStoreMissions = async (req, res, next) => {
    /*
     #swagger.summary = '특정 가게의 미션 목록 조회 API';
+    #swagger.tags = ['Mission']
+    #swagger.security = [{ "BearerAuth": [] }]  
     #swagger.responses[200] = {
       description: "특정 가게의 미션 목록 조회 성공 응답",
       content: {

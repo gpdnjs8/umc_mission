@@ -4,6 +4,8 @@ import { StatusCodes } from "http-status-codes";
 export const handleAddStore = async (req, res, next) => {
    /*
     #swagger.summary = '특정 지역에 가게 추가 API';
+    #swagger.tags = ['Store']
+    #swagger.security = [{ "BearerAuth": [] }]  
     #swagger.requestBody = {
       required: true,
       content: {
@@ -84,6 +86,8 @@ export const handleAddStore = async (req, res, next) => {
 export const handleListStoreReviews = async (req, res, next) => {
    /*
     #swagger.summary = '상점 리뷰 목록 조회 API';
+    #swagger.tags = ['Review']
+    #swagger.security = [{ "BearerAuth": [] }]  
     #swagger.responses[200] = {
       description: "상점 리뷰 목록 조회 성공 응답",
       content: {

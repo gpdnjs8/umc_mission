@@ -1,10 +1,11 @@
-import { UserToResponse } from "../dtos/user.dto.js";
-import { DuplicateUserEmailError } from "../../errors.js";
+import { UserToResponse, bodyToUpdateUser, userToResponse } from "../dtos/user.dto.js";
+import { DuplicateUserEmailError, UnauthorizedError } from "../../errors.js";
 import {
   addUser,
   getUser,
   getUserPreferencesByUserId,
-  setPreference,
+  setPreference, 
+  updateUserById
 } from "../repositories/user.repository.js";
 
 export const userSignUp = async (data) => {
@@ -30,4 +31,15 @@ export const userSignUp = async (data) => {
   const preferences = await getUserPreferencesByUserId(joinUserId);
 
   return UserToResponse(user, preferences);
+};
+
+export const updateMyInfoService = async (userId, body) => {
+  if (!userId) {
+    throw new UnauthorizedError("로그인이 필요합니다.");
+  }
+
+  const dto = bodyToUpdateUser(body);
+  const updated = await updateUserById(userId, dto);
+
+  return userToResponse(updated);
 };

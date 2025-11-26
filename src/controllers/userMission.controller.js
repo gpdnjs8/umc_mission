@@ -5,6 +5,8 @@ import { StatusCodes } from "http-status-codes";
 export const handleAddUserMission = async (req, res, next) => {
   /*
     #swagger.summary = '가게의 미션을 도전 중인 미션에 추가 API';
+    #swagger.tags = ['Mission']
+    #swagger.security = [{ "BearerAuth": [] }]  
     #swagger.requestBody = {
       required: true,
       content: {
@@ -12,7 +14,6 @@ export const handleAddUserMission = async (req, res, next) => {
           schema: {
             type: "object",
             properties: {
-              userId: { type: "number" },
               missionId: { type: "number" }
             }
           }
@@ -56,7 +57,7 @@ export const handleAddUserMission = async (req, res, next) => {
               error: {
                 type: "object",
                 properties: {
-                  errorCode: { type: "string", example: "R001" },
+                  errorCode: { type: "string", example: "M001" },
                   reason: { type: "string" },
                   data: { type: "object" }
                 }
@@ -78,7 +79,7 @@ export const handleAddUserMission = async (req, res, next) => {
               error: {
                 type: "object",
                 properties: {
-                  errorCode: { type: "string", example: "R001" },
+                  errorCode: { type: "string", example: "M002" },
                   reason: { type: "string" },
                   data: { type: "object" }
                 }
@@ -91,7 +92,10 @@ export const handleAddUserMission = async (req, res, next) => {
     };
   */
   try {
-    const dto = createUserMissionDto(req.body);
+    const dto = {
+    ...createUserMissionDto(req.body),
+    userId: req.user.id, 
+    };
     const userMission = await addUserMission(dto);
     res.status(StatusCodes.CREATED).success(userMission);
   } catch (err) {
@@ -102,6 +106,8 @@ export const handleAddUserMission = async (req, res, next) => {
 export const handleListUserMissionsInProgress = async (req, res) => {
    /*
     #swagger.summary = '내가 진행 중인 미션 목록 조회 API';
+    #swagger.tags = ['User']
+    #swagger.security = [{ "BearerAuth": [] }]  
     #swagger.responses[200] = {
       description: "내가 진행 중인 미션 목록 조회 성공 응답",
       content: {
@@ -120,7 +126,6 @@ export const handleListUserMissionsInProgress = async (req, res) => {
                       type: "object",
                       properties: {
                         id: { type: "number" },
-                        userId: { type: "number" },
                         missionId: { type: "number" },
                         status: { type: "string" },
                         createdAt: { type: "string", format: "date-time" }
@@ -136,9 +141,13 @@ export const handleListUserMissionsInProgress = async (req, res) => {
       }
     };
   */
-  const usermissions = await listUserMissionsInProgress(
-    parseInt(req.params.userId),
-    typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0
-  );
-  res.status(StatusCodes.OK).success(usermissions);
+  try {
+    const userId = req.user.id; 
+    const cursor = typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0;
+    const userMissions = await listUserMissionsInProgress(userId, cursor);
+
+    res.status(StatusCodes.OK).success(userMissions);
+  } catch (err) {
+    next(err);
+  }
 };

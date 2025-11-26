@@ -7,9 +7,8 @@ import swaggerAutogen from "swagger-autogen";
 import swaggerUiExpress from "swagger-ui-express";
 import passport from "passport";
 import { googleStrategy, jwtStrategy } from "./auth.config.js";
-import { prisma } from "./src/db.config.js";
 
-import { handleUserSignUp } from "./src/controllers/user.controller.js";
+import { handleUserSignUp, updateMyInfo } from "./src/controllers/user.controller.js";
 import { handleAddStore, handleListStoreReviews } from "./src/controllers/store.controller.js";
 import { handleAddReview, handleListUserReviews } from "./src/controllers/review.controller.js";
 import { handleAddMission, handleListStoreMissions } from "./src/controllers/mission.controller.js";
@@ -50,38 +49,48 @@ app.use(express.json()); // request의 본문을 json으로 해석할 수 있도
 app.use(express.urlencoded({ extended: false })); // 단순 객체 문자열 형태로 본문 데이터 해석
 app.use(passport.initialize());
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
-app.post("/api/v1/users/signup", handleUserSignUp);
-app.post("/api/v1/stores", handleAddStore);
-app.post("/api/v1/reviews", handleAddReview);
-app.post("/api/v1/missions", handleAddMission);
-app.post("/api/v1/users/missions", handleAddUserMission);
-
-app.get("/api/v1/stores/:storeId/reviews", handleListStoreReviews);
-app.get("/api/v1/users/:userId/reviews", handleListUserReviews);
-app.get("/api/v1/stores/:storeId/missions", handleListStoreMissions);
-app.get("/api/v1/users/:userId/missions/inprogress", handleListUserMissionsInProgress);
-
 const isLogin = passport.authenticate('jwt', { session: false });
 
-app.get('/mypage', isLogin, (req, res) => {
-  res.status(200).success({
-    message: `인증 성공! ${req.user.name}님의 마이페이지입니다.`,
-    user: req.user,
-  });
-});
+// app.get("/", (req, res) => {
+//   res.send("Hello World!");
+// });
+
+app.post("/api/v1/users/signup", handleUserSignUp);
+app.post("/api/v1/stores", isLogin, handleAddStore);
+app.post("/api/v1/reviews", isLogin, handleAddReview);
+app.post("/api/v1/missions", isLogin, handleAddMission);
+app.post("/api/v1/users/missions", isLogin, handleAddUserMission);
+
+app.get("/api/v1/stores/:storeId/reviews", isLogin, handleListStoreReviews);
+app.get("/api/v1/users/reviews", isLogin, handleListUserReviews);
+app.get("/api/v1/stores/:storeId/missions", isLogin, handleListStoreMissions);
+app.get("/api/v1/users/missions/inprogress", isLogin, handleListUserMissionsInProgress);
+
+// app.get('/mypage', isLogin, (req, res) => {
+//   res.status(200).success({
+//     message: `인증 성공! ${req.user.name}님의 마이페이지입니다.`,
+//     user: req.user,
+//   });
+// });
+app.patch("/api/v1/users/my", isLogin, updateMyInfo);
 
 // 구글 로그인
 app.get("/oauth2/login/google", 
+  /*
+  #swagger.tags = ['Auth']
+  #swagger.summary = 'Google 로그인 시작'
+  */
   passport.authenticate("google", { 
     session: false 
   })
 );
+
 app.get(
   "/oauth2/callback/google",
+  /*
+  #swagger.tags = ['Auth']
+  #swagger.summary = 'Google 로그인 콜백'
+  */
   passport.authenticate("google", {
 	  session: false,
     failureRedirect: "/login-failed",
@@ -126,6 +135,15 @@ app.get("/openapi.json", async (req, res, next) => {
       description: "UMC 9th Node.js 테스트 프로젝트입니다.",
     },
     host: "localhost:3000",
+    components: {
+    securitySchemes: {
+      BearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+    },
+    },
   };
 
   const result = await swaggerAutogen(options)(outputFile, routes, doc);

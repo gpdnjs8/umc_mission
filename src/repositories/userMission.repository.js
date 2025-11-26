@@ -1,4 +1,4 @@
-import { prisma } from "../db.config.js";
+import { prisma } from "../../db.config.js";
 
 export const insertUserMission = async (data) => {
   const userMission = await prisma.userMission.create({

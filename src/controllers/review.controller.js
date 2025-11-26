@@ -5,6 +5,8 @@ import { StatusCodes } from "http-status-codes";
 export const handleAddReview = async (req, res, next) => {
   /*
     #swagger.summary = '가게에 리뷰 추가 API';
+    #swagger.tags = ['Review']
+    #swagger.security = [{ "BearerAuth": [] }]  
     #swagger.requestBody = {
       required: true,
       content: {
@@ -12,7 +14,6 @@ export const handleAddReview = async (req, res, next) => {
           schema: {
             type: "object",
             properties: {
-              userId: { type: "number" },
               storeId: { type: "number" },
               content: { type: "string" },
               star: { type: "number" },
@@ -69,7 +70,10 @@ export const handleAddReview = async (req, res, next) => {
     };
   */
   try {
-    const reviewData = bodyToReview(req.body);
+    const reviewData = {
+    ...bodyToReview(req.body),
+    userId: req.user.id,
+    };
     const newReview = await addReview(reviewData);
 
     const reviewResponse = responseFromReview({
@@ -90,6 +94,8 @@ export const handleAddReview = async (req, res, next) => {
 export const handleListUserReviews = async (req, res, next) => {
    /*
     #swagger.summary = '내가 작성한 리뷰 목록 조회 API';
+    #swagger.tags = ['User']
+    #swagger.security = [{ "BearerAuth": [] }]  
     #swagger.responses[200] = {
       description: "내가 작성한 리뷰 목록 조회 성공 응답",
       content: {
@@ -126,9 +132,13 @@ export const handleListUserReviews = async (req, res, next) => {
       }
     };
   */
-  const reviews = await listUserReviews(
-    parseInt(req.params.userId),
-    typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0
-  );
-  res.status(StatusCodes.OK).success(reviews);
+  try {
+    const userId = req.user.id; 
+    const cursor = typeof req.query.cursor === "string" ? parseInt(req.query.cursor) : 0;
+    const reviews = await listUserReviews(userId, cursor);
+
+    res.status(StatusCodes.OK).success(reviews);
+  } catch (err) {
+    next(err);
+  }
 };

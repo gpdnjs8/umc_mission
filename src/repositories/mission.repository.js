@@ -1,4 +1,4 @@
-import { prisma } from "../db.config.js";
+import { prisma } from "../../db.config.js";
 import { StoreError } from "../../errors.js";
 
 export const insertMission = async (data) => {

@@ -1,5 +1,18 @@
+// 이메일 중복
 export class DuplicateUserEmailError extends Error {
   errorCode = "U001";
+
+  constructor(reason, data) {
+    super(reason);
+    this.reason = reason;
+    this.data = data;
+  }
+}
+
+// 인증 x
+export class UnauthorizedError extends Error {
+  statusCode = 401;
+  errorCode = "U002";
 
   constructor(reason, data) {
     super(reason);

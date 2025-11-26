@@ -1,4 +1,4 @@
-import { prisma } from "../db.config.js";
+import { prisma } from "../../db.config.js";
 
 // User 데이터 삽입
 export const addUser = async (data) => {
@@ -41,4 +41,12 @@ export const getUserPreferencesByUserId = async (userId) => {
   });
 
   return preferences;
+};
+
+// 사용자 정보 업데이트
+export const updateUserById = (id, data) => {
+  return prisma.user.update({
+    where: { id },
+    data,
+  });
 };

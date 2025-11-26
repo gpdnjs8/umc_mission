@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-import { prisma } from "./src/db.config.js";
+import { prisma } from "./db.config.js";
 import jwt from "jsonwebtoken"; // JWT 생성을 위해 import 
 
 dotenv.config();
